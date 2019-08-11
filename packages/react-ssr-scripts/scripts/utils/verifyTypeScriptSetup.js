@@ -8,14 +8,15 @@
 
 'use strict';
 
-const chalk = require('react-ssr-dev-utils/chalk');
+const chalk = require('@coffee/dev-utils/chalk');
 const fs = require('fs');
 const resolve = require('resolve');
 const path = require('path');
 const paths = require('../../config/paths');
 const os = require('os');
-const immer = require('react-ssr-dev-utils/immer').produce;
-const globby = require('react-ssr-dev-utils/globby').sync;
+const immer = require('@coffee/dev-utils/immer').produce;
+const globby = require('@coffee/dev-utils/globby').sync;
+const execSync = require('child_process').execSync;
 
 function writeJson(fileName, object) {
   fs.writeFileSync(
@@ -54,7 +55,16 @@ function verifyTypeScriptSetup() {
     firstTimeSetup = true;
   }
 
-  const isYarn = fs.existsSync(paths.yarnLockFile);
+  function shouldUseYarn() {
+    try {
+      execSync('yarnpkg --version', { stdio: 'ignore' });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  const isYarn = shouldUseYarn();
 
   // Ensure typescript is installed
   let ts;
@@ -257,7 +267,7 @@ function verifyTypeScriptSetup() {
   if (!fs.existsSync(paths.appTypeDeclarations)) {
     fs.writeFileSync(
       paths.appTypeDeclarations,
-      `/// <reference types="react-ssr-scripts" />${os.EOL}`
+      `/// <reference types="@coffee/scripts" />${os.EOL}`
     );
   }
 }

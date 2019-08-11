@@ -17,9 +17,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const safePostCssParser = require('postcss-safe-parser');
 const ManifestPlugin = require('webpack-manifest-plugin');
-const ModuleScopePlugin = require('react-ssr-dev-utils/ModuleScopePlugin');
-const InlineChunkHtmlPlugin = require('react-ssr-dev-utils/InlineChunkHtmlPlugin');
-const InterpolateHtmlPlugin = require('react-ssr-dev-utils/InterpolateHtmlPlugin');
+const ModuleScopePlugin = require('@coffee/dev-utils/ModuleScopePlugin');
+const InlineChunkHtmlPlugin = require('@coffee/dev-utils/InlineChunkHtmlPlugin');
+const InterpolateHtmlPlugin = require('@coffee/dev-utils/InterpolateHtmlPlugin');
 
 const paths = require('../paths');
 const modules = require('../modules');
@@ -216,9 +216,7 @@ module.exports = function(webpackEnv) {
           use: [
             {
               options: {
-                formatter: require.resolve(
-                  'react-ssr-dev-utils/eslintFormatter'
-                ),
+                formatter: require.resolve('@coffee/dev-utils/eslintFormatter'),
                 eslintPath: require.resolve('eslint'),
                 // @remove-on-eject-begin
                 baseConfig: {

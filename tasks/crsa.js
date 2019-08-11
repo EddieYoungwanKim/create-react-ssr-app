@@ -8,20 +8,15 @@
 
 'use strict';
 
-const fs = require('fs');
+const chalk = require('chalk');
 const path = require('path');
 const cp = require('child_process');
-
-const cleanup = () => {
-  console.log('Cleaning up.');
-  // Reset changes made to package.json files.
-  cp.execSync(`git checkout -- packages/*/package.json`);
-  // Uncomment when snapshot testing is enabled by default:
-  // rm ./template/src/__snapshots__/App.test.js.snap
-};
+const fs = require('fs-extra');
+const os = require('os');
+const spawn = require('cross-spawn');
+const execSync = require('child_process').execSync;
 
 const handleExit = () => {
-  cleanup();
   console.log('Exiting without error.');
   process.exit();
 };
@@ -29,7 +24,6 @@ const handleExit = () => {
 const handleError = e => {
   console.error('ERROR! An error was encountered while executing');
   console.error(e);
-  cleanup();
   console.log('Exiting with error.');
   process.exit(1);
 };
@@ -37,96 +31,149 @@ const handleError = e => {
 process.on('SIGINT', handleExit);
 process.on('uncaughtException', handleError);
 
-console.log();
-console.log('-------------------------------------------------------');
-console.log('Assuming you have already run `yarn` to update the deps.');
-console.log('If not, remember to do this before testing!');
-console.log('-------------------------------------------------------');
-console.log();
+cp.execSync('yarn cache clean');
 
-// Temporarily overwrite package.json of all packages in monorepo
-// to point to each other using absolute file:/ URLs.
+const args = process.argv.slice(2);
+const projectName = args[0];
 
-const gitStatus = cp.execSync(`git status --porcelain`).toString();
-
-if (gitStatus.trim() !== '') {
-  console.log('Please commit your changes before running this script!');
-  console.log('Exiting because `git status` is not empty:');
-  console.log();
-  console.log(gitStatus);
+if (typeof projectName === 'undefined') {
+  console.error('Please specify the project directory:');
   console.log();
   process.exit(1);
 }
 
-const rootDir = path.join(__dirname, '..');
-const packagesDir = path.join(rootDir, 'packages');
-const packagePathsByName = {};
-fs.readdirSync(packagesDir).forEach(name => {
-  const packageDir = path.join(packagesDir, name);
-  const packageJson = path.join(packageDir, 'package.json');
-  if (fs.existsSync(packageJson)) {
-    packagePathsByName[name] = packageDir;
-  }
-});
-Object.keys(packagePathsByName).forEach(name => {
-  const packageJson = path.join(packagePathsByName[name], 'package.json');
-  const json = JSON.parse(fs.readFileSync(packageJson, 'utf8'));
-  Object.keys(packagePathsByName).forEach(otherName => {
-    if (json.dependencies && json.dependencies[otherName]) {
-      json.dependencies[otherName] = 'file:' + packagePathsByName[otherName];
+const appRoot = path.resolve(projectName);
+const appName = path.basename(appRoot);
+fs.ensureDirSync(projectName);
+
+console.log(`Creating a new app in ${chalk.green(appRoot)}.`);
+console.log();
+
+const packageJson = {
+  name: appName,
+  version: '0.1.0',
+  private: true,
+};
+fs.writeFileSync(
+  path.join(appRoot, 'package.json'),
+  JSON.stringify(packageJson, null, 2) + os.EOL
+);
+
+if (!shouldUseYarn()) {
+  console.log(chalk.red(`Please Use Yarn.\n`));
+  process.exit(1);
+}
+
+// Change working directory
+process.chdir(appRoot);
+
+const allDependencies = [
+  'escape-string-regexp',
+  'express',
+  'react',
+  'react-dom',
+  '@coffee/scripts@1.0.0',
+  '@types/express',
+  '@types/jest',
+  '@types/node',
+  '@types/react',
+  '@types/react-dom',
+  '@types/webpack-env',
+  'typescript',
+];
+console.log('Installing packages. This might take a couple of minutes.');
+console.log(
+  `Installing ${chalk.cyan('express')}, ${chalk.cyan('react')}, ${chalk.cyan(
+    'react-dom'
+  )}, and ${chalk.cyan('@coffee/scripts@1.0.0')}...`
+);
+console.log();
+
+install(appRoot, allDependencies)
+  .then(async () => {
+    // Add npm scripts with our custom scripts
+    // Add eslintConfig with extending 'react-app'
+    // Add browserlist with default list
+    // Copy template over to the appPath
+    // gitignore to .gitignore
+    // Install additional template dependencies from .template.dependencies.json
+    // VerifyTypeScriptSetup
+    // Create tsconfig.json and global.d.ts
+    await executeNodeScript(
+      {
+        cwd: process.cwd(),
+        args: [],
+      },
+      [appRoot, appName],
+      `
+    var init = require('@coffee/scripts/scripts/init.js');
+    init.apply(null, JSON.parse(process.argv[1]));
+  `
+    );
+    // Cleanup
+    handleExit();
+  })
+  .catch(reason => {
+    console.log();
+    console.log('Aborting installation.');
+    if (reason.command) {
+      console.log(`  ${chalk.cyan(reason.command)} has failed.`);
+    } else {
+      console.log(chalk.red('Unexpected error. Please report it as a bug:'));
+      console.log(reason);
     }
-    if (json.devDependencies && json.devDependencies[otherName]) {
-      json.devDependencies[otherName] = 'file:' + packagePathsByName[otherName];
-    }
-    if (json.peerDependencies && json.peerDependencies[otherName]) {
-      json.peerDependencies[otherName] =
-        'file:' + packagePathsByName[otherName];
-    }
-    if (json.optionalDependencies && json.optionalDependencies[otherName]) {
-      json.optionalDependencies[otherName] =
-        'file:' + packagePathsByName[otherName];
-    }
+    console.log();
+    handleError();
   });
 
-  fs.writeFileSync(packageJson, JSON.stringify(json, null, 2), 'utf8');
-  console.log(
-    'Replaced local dependencies in packages/' + name + '/package.json'
-  );
-});
-console.log('Replaced all local dependencies for testing.');
-console.log('Do not edit any package.json while this task is running.');
+function executeNodeScript({ cwd, args }, data, source) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(
+      process.execPath,
+      [...args, '-e', source, '--', JSON.stringify(data)],
+      { cwd, stdio: 'inherit' }
+    );
 
-// Finally, pack react-ssr-scripts.
-// Don't redirect stdio as we want to capture the output that will be returned
-// from execSync(). In this case it will be the .tgz filename.
-const scriptsFileName = cp
-  .execSync(`npm pack`, { cwd: path.join(packagesDir, 'react-ssr-scripts') })
-  .toString()
-  .trim();
-const scriptsPath = path.join(
-  packagesDir,
-  'react-ssr-scripts',
-  scriptsFileName
-);
+    child.on('close', code => {
+      if (code !== 0) {
+        reject({
+          command: `node ${args.join(' ')}`,
+        });
+        return;
+      }
+      resolve();
+    });
+  });
+}
 
-// Now that we have packed them, call the global CLI.
-cp.execSync('yarn cache clean');
+function install(root, dependencies) {
+  return new Promise((resolve, reject) => {
+    let command;
+    let args;
+    command = 'yarnpkg';
+    args = ['add', '--exact'];
+    [].push.apply(args, dependencies);
+    args.push('--cwd');
+    args.push(root);
 
-const args = process.argv.slice(2);
+    const child = spawn(command, args, { stdio: 'inherit' });
+    child.on('close', code => {
+      if (code !== 0) {
+        reject({
+          command: `${command} ${args.join(' ')}`,
+        });
+        return;
+      }
+      resolve();
+    });
+  });
+}
 
-// Now run the CRA command
-const craScriptPath = path.join(
-  packagesDir,
-  'create-react-ssr-app',
-  'index.js'
-);
-cp.execSync(
-  `node ${craScriptPath} ${args.join(' ')} --scripts-version="${scriptsPath}"`,
-  {
-    cwd: rootDir,
-    stdio: 'inherit',
+function shouldUseYarn() {
+  try {
+    execSync('yarnpkg --version', { stdio: 'ignore' });
+    return true;
+  } catch (e) {
+    return false;
   }
-);
-
-// Cleanup
-handleExit();
+}

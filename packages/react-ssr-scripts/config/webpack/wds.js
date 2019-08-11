@@ -8,9 +8,9 @@
 // @remove-on-eject-end
 'use strict';
 
-const ignoredFiles = require('react-ssr-dev-utils/ignoredFiles');
-const errorOverlayMiddleware = require('react-ssr-dev-utils/errorOverlayMiddleware');
-const evalSourceMapMiddleware = require('react-ssr-dev-utils/evalSourceMapMiddleware');
+const ignoredFiles = require('@coffee/dev-utils/ignoredFiles');
+const errorOverlayMiddleware = require('@coffee/dev-utils/errorOverlayMiddleware');
+const evalSourceMapMiddleware = require('@coffee/dev-utils/evalSourceMapMiddleware');
 
 const paths = require('../paths');
 

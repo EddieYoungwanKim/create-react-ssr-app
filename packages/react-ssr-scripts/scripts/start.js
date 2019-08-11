@@ -40,16 +40,16 @@ verifyTypeScriptSetup();
 const fs = require('fs-extra');
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
-const chalk = require('react-ssr-dev-utils/chalk');
-const openBrowser = require('react-ssr-dev-utils/openBrowser');
-const clearConsole = require('react-ssr-dev-utils/clearConsole');
-const checkRequiredFiles = require('react-ssr-dev-utils/checkRequiredFiles');
+const chalk = require('@coffee/dev-utils/chalk');
+const openBrowser = require('@coffee/dev-utils/openBrowser');
+const clearConsole = require('@coffee/dev-utils/clearConsole');
+const checkRequiredFiles = require('@coffee/dev-utils/checkRequiredFiles');
 const {
   choosePort,
   prepareUrls,
   printInstructions,
   createCompiler,
-} = require('react-ssr-dev-utils/webpackUtils');
+} = require('@coffee/dev-utils/webpackUtils');
 
 const paths = require('../config/paths');
 const configFactory = require('../config/webpack');
@@ -97,7 +97,7 @@ if (process.env.HOST) {
 
 // We require that you explicitly set browsers and do not fall back to
 // browserslist defaults.
-const { checkBrowsers } = require('react-ssr-dev-utils/browsersHelper');
+const { checkBrowsers } = require('@coffee/dev-utils/browsersHelper');
 checkBrowsers(paths.appPath, isInteractive)
   .then(() => {
     // Remove all content but keep the directory so that
@@ -130,7 +130,7 @@ checkBrowsers(paths.appPath, isInteractive)
     const [clientConfig, serverConfig] = configFactory('development');
 
     clientConfig.entry = [
-      `react-ssr-dev-utils/webpackHotDevClient?devPort=${devPort}`,
+      `@coffee/dev-utils/webpackHotDevClient?devPort=${devPort}`,
       ...clientConfig.entry,
     ];
     clientConfig.output.publicPath = `http://localhost:${devPort}/`;

@@ -34,12 +34,12 @@ verifyTypeScriptSetup();
 const path = require('path');
 const fs = require('fs-extra');
 const webpack = require('webpack');
-const chalk = require('react-ssr-dev-utils/chalk');
-const checkRequiredFiles = require('react-ssr-dev-utils/checkRequiredFiles');
-const FileSizeReporter = require('react-ssr-dev-utils/FileSizeReporter');
-const formatWebpackMessages = require('react-ssr-dev-utils/formatWebpackMessages');
-const printBuildError = require('react-ssr-dev-utils/printBuildError');
-const printHostingInstructions = require('react-ssr-dev-utils/printHostingInstructions');
+const chalk = require('@coffee/dev-utils/chalk');
+const checkRequiredFiles = require('@coffee/dev-utils/checkRequiredFiles');
+const FileSizeReporter = require('@coffee/dev-utils/FileSizeReporter');
+const formatWebpackMessages = require('@coffee/dev-utils/formatWebpackMessages');
+const printBuildError = require('@coffee/dev-utils/printBuildError');
+const printHostingInstructions = require('@coffee/dev-utils/printHostingInstructions');
 
 const paths = require('../config/paths');
 const configFactory = require('../config/webpack');
@@ -70,7 +70,7 @@ const [clientConfig, serverConfig] = configFactory('production');
 
 // We require that you explicitly set browsers and do not fall back to
 // browserslist defaults.
-const { checkBrowsers } = require('react-ssr-dev-utils/browsersHelper');
+const { checkBrowsers } = require('@coffee/dev-utils/browsersHelper');
 checkBrowsers(paths.appPath, isInteractive)
   .then(() => {
     // First, read the current file sizes in client build directory.

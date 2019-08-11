@@ -13,7 +13,7 @@ const webpack = require('webpack');
 const PnpWebpackPlugin = require('pnp-webpack-plugin');
 const nodeExternals = require('webpack-node-externals');
 const StartServerPlugin = require('start-server-webpack-plugin');
-const ModuleScopePlugin = require('react-ssr-dev-utils/ModuleScopePlugin');
+const ModuleScopePlugin = require('@coffee/dev-utils/ModuleScopePlugin');
 
 const paths = require('../paths');
 const modules = require('../modules');
@@ -98,9 +98,7 @@ module.exports = function(webpackEnv) {
           use: [
             {
               options: {
-                formatter: require.resolve(
-                  'react-ssr-dev-utils/eslintFormatter'
-                ),
+                formatter: require.resolve('@coffee/dev-utils/eslintFormatter'),
                 eslintPath: require.resolve('eslint'),
                 // @remove-on-eject-begin
                 baseConfig: {

@@ -14,10 +14,10 @@ const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WriteFileWebpackPlugin = require('write-file-webpack-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-const ModuleNotFoundPlugin = require('react-ssr-dev-utils/ModuleNotFoundPlugin');
-const ForkTsCheckerWebpackPlugin = require('react-ssr-dev-utils/ForkTsCheckerWebpackPlugin');
-const typescriptFormatter = require('react-ssr-dev-utils/typescriptFormatter');
-const WatchMissingNodeModulesPlugin = require('react-ssr-dev-utils/WatchMissingNodeModulesPlugin');
+const ModuleNotFoundPlugin = require('@coffee/dev-utils/ModuleNotFoundPlugin');
+const ForkTsCheckerWebpackPlugin = require('@coffee/dev-utils/ForkTsCheckerWebpackPlugin');
+const typescriptFormatter = require('@coffee/dev-utils/typescriptFormatter');
+const WatchMissingNodeModulesPlugin = require('@coffee/dev-utils/WatchMissingNodeModulesPlugin');
 
 const paths = require('../paths');
 const getClientEnvironment = require('../env');

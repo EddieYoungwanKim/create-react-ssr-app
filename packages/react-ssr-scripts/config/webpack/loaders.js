@@ -9,9 +9,9 @@
 'use strict';
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const getCSSModuleLocalIdent = require('react-ssr-dev-utils/getCSSModuleLocalIdent');
+const getCSSModuleLocalIdent = require('@coffee/dev-utils/getCSSModuleLocalIdent');
 // @remove-on-eject-begin
-const getCacheIdentifier = require('react-ssr-dev-utils/getCacheIdentifier');
+const getCacheIdentifier = require('@coffee/dev-utils/getCacheIdentifier');
 // @remove-on-eject-end
 const postcssNormalize = require('postcss-normalize');
 
@@ -55,7 +55,7 @@ const baseLoaders = (webpackEnv, appEnv) => {
             'babel-plugin-styled-components',
             'babel-plugin-named-asset-import',
             'babel-preset-react-app',
-            'react-ssr-dev-utils',
+            '@coffee/dev-utils',
             'react-ssr-scripts',
           ]
         ),
@@ -109,7 +109,7 @@ const baseLoaders = (webpackEnv, appEnv) => {
             'babel-plugin-styled-components',
             'babel-plugin-named-asset-import',
             'babel-preset-react-app',
-            'react-ssr-dev-utils',
+            '@coffee/dev-utils',
             'react-ssr-scripts',
           ]
         ),

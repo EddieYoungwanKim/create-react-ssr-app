@@ -1,22 +1,8 @@
 {
-  "name": "react-ssr-scripts",
-  "version": "2.1.6",
+  "name": "@coffee/scripts",
+  "version": "1.0.0",
   "description": "Configuration and scripts for Create React SSR App.",
-  "keywords": [
-    "node",
-    "react",
-    "ssr"
-  ],
-  "homepage": "https://trustworktech.github.io/create-react-ssr-app/",
-  "bugs": {
-    "url": "https://github.com/trustworktech/create-react-ssr-app/issues",
-    "email": "dev@trustwork.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/trustworktech/create-react-ssr-app.git"
-  },
-  "license": "MIT",
+  "license": "UNLISENCED",
   "files": [
     "bin",
     "config",
@@ -26,7 +12,7 @@
     "template-typescript"
   ],
   "bin": {
-    "react-ssr-scripts": "./bin/react-ssr-scripts.js"
+    "eddie-scripts": "./bin/react-ssr-scripts.js"
   },
   "browserslist": {
     "production": [
@@ -48,7 +34,7 @@
     "@typescript-eslint/parser": "1.6.0",
     "babel-eslint": "10.0.1",
     "babel-jest": "^24.8.0",
-    "babel-loader": "8.0.5",
+    "babel-loader": "8.0.6",
     "babel-plugin-dynamic-import-node": "^2.2.0",
     "babel-plugin-named-asset-import": "^0.3.2",
     "babel-plugin-styled-components": "^1.10.0",
@@ -84,7 +70,7 @@
     "postcss-preset-env": "6.6.0",
     "postcss-safe-parser": "4.0.1",
     "react-app-polyfill": "^1.0.1",
-    "react-ssr-dev-utils": "^2.1.1",
+    "@coffee/dev-utils": "1.0.0",
     "resolve": "1.10.0",
     "sass-loader": "7.1.0",
     "semver": "6.0.0",

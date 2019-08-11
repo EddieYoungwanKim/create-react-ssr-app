@@ -16,77 +16,18 @@ process.on('unhandledRejection', err => {
 
 const fs = require('fs-extra');
 const path = require('path');
-const chalk = require('react-ssr-dev-utils/chalk');
-const execSync = require('child_process').execSync;
-const spawn = require('react-ssr-dev-utils/crossSpawn');
-const { defaultBrowsers } = require('react-ssr-dev-utils/browsersHelper');
+const chalk = require('@coffee/dev-utils/chalk');
+const spawn = require('@coffee/dev-utils/crossSpawn');
+const { defaultBrowsers } = require('@coffee/dev-utils/browsersHelper');
 const os = require('os');
 const verifyTypeScriptSetup = require('./utils/verifyTypeScriptSetup');
 
-function isInGitRepository() {
-  try {
-    execSync('git rev-parse --is-inside-work-tree', { stdio: 'ignore' });
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-function isInMercurialRepository() {
-  try {
-    execSync('hg --cwd . root', { stdio: 'ignore' });
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-function tryGitInit(appPath) {
-  let didInit = false;
-  try {
-    execSync('git --version', { stdio: 'ignore' });
-    if (isInGitRepository() || isInMercurialRepository()) {
-      return false;
-    }
-
-    execSync('git init', { stdio: 'ignore' });
-    didInit = true;
-
-    execSync('git add -A', { stdio: 'ignore' });
-    execSync('git commit -m "Initial commit from Create React SSR App"', {
-      stdio: 'ignore',
-    });
-    return true;
-  } catch (e) {
-    if (didInit) {
-      // If we successfully initialized but couldn't commit,
-      // maybe the commit author config is not set.
-      // In the future, we might supply our own committer
-      // like Ember CLI does, but for now, let's just
-      // remove the Git files to avoid a half-done state.
-      try {
-        // unlinkSync() doesn't work on directories.
-        fs.removeSync(path.join(appPath, '.git'));
-      } catch (removeErr) {
-        // Ignore.
-      }
-    }
-    return false;
-  }
-}
-
-module.exports = function(
-  appPath,
-  appName,
-  verbose,
-  originalDirectory,
-  template
-) {
+module.exports = function(appPath, appName) {
   const ownPath = path.dirname(
     require.resolve(path.join(__dirname, '..', 'package.json'))
   );
   const appPackage = require(path.join(appPath, 'package.json'));
-  const useYarn = fs.existsSync(path.join(appPath, 'yarn.lock'));
+  const useYarn = true;
 
   // Copy over some of the devDependencies
   appPackage.dependencies = appPackage.dependencies || {};
@@ -95,10 +36,9 @@ module.exports = function(
 
   // Setup the script rules
   appPackage.scripts = {
-    start: 'react-ssr-scripts start',
-    build: 'react-ssr-scripts build',
-    test: 'react-ssr-scripts test',
-    eject: 'react-ssr-scripts eject',
+    start: 'eddie-scripts start',
+    build: 'eddie-scripts build',
+    test: 'eddie-scripts test',
   };
 
   // Setup the eslint config
@@ -114,18 +54,11 @@ module.exports = function(
     JSON.stringify(appPackage, null, 2) + os.EOL
   );
 
-  const readmeExists = fs.existsSync(path.join(appPath, 'README.md'));
-  if (readmeExists) {
-    fs.renameSync(
-      path.join(appPath, 'README.md'),
-      path.join(appPath, 'README.old.md')
-    );
-  }
-
   // Copy the files for the user
-  const templatePath = template
-    ? path.resolve(originalDirectory, template)
-    : path.join(ownPath, useTypeScript ? 'template-typescript' : 'template');
+  const templatePath = path.join(
+    ownPath,
+    useTypeScript ? 'template-typescript' : 'template'
+  );
   if (fs.existsSync(templatePath)) {
     fs.copySync(templatePath, appPath);
   } else {
@@ -162,9 +95,8 @@ module.exports = function(
     args = ['add'];
   } else {
     command = 'npm';
-    args = ['install', '--save', verbose && '--verbose'].filter(e => e);
+    args = ['install', '--save'].filter(e => e);
   }
-  args.push('react', 'react-dom');
 
   // Install additional template dependencies, if present
   const templateDependenciesPath = path.join(
@@ -178,14 +110,7 @@ module.exports = function(
         return `${key}@${templateDependencies[key]}`;
       })
     );
-    fs.unlinkSync(templateDependenciesPath);
-  }
-
-  // Install react and react-dom for backward compatibility with old CRA cli
-  // which doesn't install react and react-dom along with react-ssr-scripts
-  // or template is presetend (via --internal-testing-template)
-  if (!isReactInstalled(appPackage) || template) {
-    console.log(`Installing react and react-dom using ${command}...`);
+    console.log(`Installing dependencies from .template.dependencies.json`);
     console.log();
 
     const proc = spawn.sync(command, args, { stdio: 'inherit' });
@@ -193,76 +118,29 @@ module.exports = function(
       console.error(`\`${command} ${args.join(' ')}\` failed`);
       return;
     }
+    fs.unlinkSync(templateDependenciesPath);
   }
-
+  // Create tsconfig.json and global.d.ts
   if (useTypeScript) {
     verifyTypeScriptSetup();
   }
-
-  if (tryGitInit(appPath)) {
-    console.log();
-    console.log('Initialized a git repository.');
-  }
-
-  // Display the most elegant way to cd.
-  // This needs to handle an undefined originalDirectory for
-  // backward compatibility with old global-cli's.
-  let cdpath;
-  if (originalDirectory && path.join(originalDirectory, appName) === appPath) {
-    cdpath = appName;
-  } else {
-    cdpath = appPath;
-  }
-
-  // Change displayed command to yarn instead of yarnpkg
-  const displayedCommand = useYarn ? 'yarn' : 'npm';
 
   console.log();
   console.log(`Success! Created ${appName} at ${appPath}`);
   console.log('Inside that directory, you can run several commands:');
   console.log();
-  console.log(chalk.cyan(`  ${displayedCommand} start`));
+  console.log(chalk.cyan(`  yarn workspace ${appName} start`));
   console.log('    Starts the development server.');
   console.log();
-  console.log(
-    chalk.cyan(`  ${displayedCommand} ${useYarn ? '' : 'run '}build`)
-  );
+  console.log(chalk.cyan(`  yarn workspace ${appName} build`));
   console.log('    Bundles the app into static files for production.');
   console.log();
-  console.log(chalk.cyan(`  ${displayedCommand} test`));
+  console.log(chalk.cyan(`  yarn workspace ${appName} test`));
   console.log('    Starts the test runner.');
-  console.log();
-  console.log(
-    chalk.cyan(`  ${displayedCommand} ${useYarn ? '' : 'run '}eject`)
-  );
-  console.log(
-    '    Removes this tool and copies build dependencies, configuration files'
-  );
-  console.log(
-    '    and scripts into the app directory. If you do this, you can’t go back!'
-  );
   console.log();
   console.log('We suggest that you begin by typing:');
   console.log();
-  console.log(chalk.cyan('  cd'), cdpath);
-  console.log(`  ${chalk.cyan(`${displayedCommand} start`)}`);
-  if (readmeExists) {
-    console.log();
-    console.log(
-      chalk.yellow(
-        'You had a `README.md` file, we renamed it to `README.old.md`'
-      )
-    );
-  }
+  console.log(chalk.cyan(`  yarn workspace ${appName} start`));
   console.log();
   console.log('Happy coding!');
 };
-
-function isReactInstalled(appPackage) {
-  const dependencies = appPackage.dependencies || {};
-
-  return (
-    typeof dependencies.react !== 'undefined' &&
-    typeof dependencies['react-dom'] !== 'undefined'
-  );
-}

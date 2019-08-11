@@ -11,7 +11,7 @@
 const fs = require('fs');
 const path = require('path');
 const paths = require('./paths');
-const chalk = require('react-ssr-dev-utils/chalk');
+const chalk = require('@coffee/dev-utils/chalk');
 
 /**
  * Get the baseUrl of a compilerOptions object.
