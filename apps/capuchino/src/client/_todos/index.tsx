@@ -1,30 +1,22 @@
-import React, { FunctionComponent, useEffect } from 'react';
+import React, { FC, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { RootState } from 'typesafe-actions';
+import { RootState, Store } from 'typesafe-actions';
+import { Todo } from 'Todo-Types';
 
+import {
+  TodoFormComponent,
+  TodoListComponent,
+  TodoComponent,
+} from './components';
 import * as selectors from './store/todos/selectors';
 import * as actions from './store/todos/actions';
 
-const mapStateToProps = (state: RootState) => ({
-  isLoading: state.todos.isLoadingTodos,
-  todos: selectors.getTodos(state.todos),
-});
-const dispatchProps = {
-  addTodo: actions.addTodo,
-  removeTodo: actions.removeTodo,
-};
-
-interface TodosPageProps {}
-
-type Props = ReturnType<typeof mapStateToProps> &
-  typeof dispatchProps &
-  TodosPageProps;
-
-const TodosPage: FunctionComponent<Props> = ({
+const TodosPage: FC<Props> = ({
   isLoading,
   todos,
   addTodo,
   removeTodo,
+  loadTodos,
 }) => {
   useEffect(() => {}, []);
   if (isLoading) {
@@ -34,20 +26,47 @@ const TodosPage: FunctionComponent<Props> = ({
     <div>
       Todos Page
       <div>
-        <button onClick={() => addTodo('new todo')}>ADD TOdos</button>
+        <button
+          onClick={() => {
+            loadTodos({});
+          }}
+        >
+          Load Todos
+        </button>
       </div>
-      {todos.map(todo => (
-        <li key={todo.id}>
-          {todo.title}
-          <button onClick={() => removeTodo(todo.id)}>Remove</button>
-        </li>
-      ))}
+      <TodoFormComponent addTodo={addTodo} />
+      <TodoListComponent
+        todos={todos}
+        render={(todo: Todo) => (
+          <TodoComponent todo={todo} removeTodo={removeTodo} />
+        )}
+      />
     </div>
   );
 };
 
-export const loadData = (store: any) => {
-  return Promise.all([]);
+const mapStateToProps = (state: RootState) => ({
+  isLoading: state.todos.isLoadingTodos,
+  todos: selectors.getTodos(state.todos),
+});
+const dispatchProps = {
+  addTodo: actions.addTodo,
+  removeTodo: actions.removeTodo,
+  loadTodos: actions.loadTodosAsync.request,
+};
+
+interface TodosPageProps {}
+
+type Props = ReturnType<typeof mapStateToProps> &
+  typeof dispatchProps &
+  TodosPageProps;
+
+export const loadData = (store: Store) => {
+  return Promise.all([
+    new Promise((resolve, reject) =>
+      store.dispatch(actions.loadTodosAsync.request({ resolve, reject }))
+    ),
+  ]);
 };
 
 export default {

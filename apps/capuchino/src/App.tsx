@@ -10,12 +10,7 @@ const Title = styled.h1`
 `;
 
 const App: FC = props => {
-  return (
-    <div className="App">
-      <Title>Fuck Yeah!</Title>
-      {props.children}
-    </div>
-  );
+  return <div className="App">{props.children}</div>;
 };
 
 export default App;

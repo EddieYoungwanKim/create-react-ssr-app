@@ -1,14 +1,30 @@
 import { createStore, applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
 import { Request, Response, NextFunction } from 'express';
 import { matchRoutes } from 'react-router-config';
 
 import rootReducer from 'client/store/root-reducer';
+import rootEpic from 'client/store/root-epic';
+import services from 'client/services';
 import routeConfig from 'client/routes';
 
-const configureStore = () => {
-  const store = createStore(rootReducer, {}, applyMiddleware(thunk));
+import { createEpicMiddleware } from 'redux-observable';
+import { RootAction, RootState, Services } from 'typesafe-actions';
 
+export const epicMiddleware = createEpicMiddleware<
+  RootAction,
+  RootAction,
+  RootState,
+  Services
+>({
+  dependencies: services,
+});
+
+// configure middlewares
+const middlewares = [epicMiddleware];
+
+const configureStore = () => {
+  const store = createStore(rootReducer, {}, applyMiddleware(...middlewares));
+  epicMiddleware.run(rootEpic);
   return store;
 };
 
@@ -22,7 +38,9 @@ const storeMiddleware = () => (
   const promises = matchRoutes(routeConfig, req.path).map(({ route }) => {
     return route.loadData ? route.loadData(store) : null;
   });
-  Promise.all(promises).then(() => {
+  console.log('////', promises);
+  Promise.all(promises).then(data => {
+    console.log('DATA', data);
     next();
   });
 };

@@ -1,22 +1,8 @@
+import axios from 'axios';
 import { Todo } from 'Todo-Types';
 
-let todos: Todo[] = [
-  { id: 0, title: `Yo, your snapshot has been loaded successfully!` },
-];
-
-export function loadSnapshot(): Promise<Todo[]> {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve(todos);
-    }, 500);
-  });
-}
-
-export function saveSnapshot(data: Todo[]): Promise<undefined> {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      todos = data;
-      resolve();
-    }, 500);
-  });
+export function fetchAll(): Promise<Todo[]> {
+  return axios
+    .get('https://jsonplaceholder.typicode.com/todos')
+    .then(response => response.data);
 }
