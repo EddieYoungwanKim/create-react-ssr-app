@@ -1,19 +1,24 @@
 import { createStore, applyMiddleware } from 'redux';
+import axios from 'axios';
 import { createEpicMiddleware } from 'redux-observable';
-import { RootAction, RootState, Services } from 'typesafe-actions';
+import { RootAction, RootState, HttpClientAndAPIs } from 'typesafe-actions';
 
 import { composeEnhancers } from './utils';
 import rootReducer from './root-reducer';
 import rootEpic from './root-epic';
-import services from 'client/services';
+import api from './root-api';
 
-export const epicMiddleware = createEpicMiddleware<
+const http = axios.create({
+  baseURL: '/api',
+});
+
+const epicMiddleware = createEpicMiddleware<
   RootAction,
   RootAction,
   RootState,
-  Services
+  HttpClientAndAPIs
 >({
-  dependencies: services,
+  dependencies: { api, http },
 });
 
 // configure middlewares

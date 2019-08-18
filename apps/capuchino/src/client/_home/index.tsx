@@ -1,16 +1,19 @@
 import React, { FunctionComponent } from 'react';
+import styled from 'styled-components';
 
+const Title = styled.h1`
+  font-size: 1.5em;
+  text-align: center;
+  color: red;
+`;
 interface Props {}
 
 const Home: FunctionComponent<Props> = (props: Props) => {
-  return <div>This is Home Page</div>;
+  return (
+    <div>
+      <Title>This is Home Page</Title>
+    </div>
+  );
 };
 
-export const loadData = (store: any) => {
-  return Promise.all([]);
-};
-
-export default {
-  component: Home,
-  loadData,
-};
+export default Home;

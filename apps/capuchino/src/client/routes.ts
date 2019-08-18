@@ -1,14 +1,14 @@
-import Home from './_home';
-import Todos from './_todos';
+import loadable from '@loadable/component';
 
 export default [
   {
     path: '/',
     exact: true,
-    ...Home,
+    component: loadable(() => import('./_home')),
   },
   {
-    path: '/todos',
-    ...Todos,
+    path: '/todos/:id',
+    component: loadable(() => import('./_todos')),
+    serverActionDispatch: require('./_todos/serverActionDispatch').default,
   },
 ];

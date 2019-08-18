@@ -75,6 +75,7 @@ const baseLoaders = (webpackEnv, appEnv) => {
               },
             },
           ],
+          '@loadable/babel-plugin',
         ].filter(Boolean),
         // This is a feature of `babel-loader` for webpack (not Babel itself).
         // It enables caching results in ./node_modules/.cache/babel-loader/
@@ -110,7 +111,7 @@ const baseLoaders = (webpackEnv, appEnv) => {
             'babel-plugin-named-asset-import',
             'babel-preset-react-app',
             '@coffee/dev-utils',
-            'react-ssr-scripts',
+            '@coffee/scripts',
           ]
         ),
         // @remove-on-eject-end

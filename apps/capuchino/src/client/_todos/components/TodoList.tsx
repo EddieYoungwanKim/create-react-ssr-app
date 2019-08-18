@@ -7,7 +7,6 @@ interface TodoListProps {
 }
 
 type Props = TodoListProps;
-
 export const TodoListComponent: FC<Props> = ({ todos, render }) => {
   return (
     <div>

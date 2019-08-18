@@ -16,4 +16,4 @@ export const loadTodosAsync = createAsyncAction(
   'LOAD_TODOS_REQUEST',
   'LOAD_TODOS_SUCCESS',
   'LOAD_TODOS_FAILURE'
-)<any, Todo[], string>();
+)<{ resolve?: () => void }, Todo[], undefined>();

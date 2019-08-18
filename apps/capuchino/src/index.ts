@@ -5,7 +5,6 @@ let app = require('./server').default;
 if (module.hot) {
   module.hot.accept('./server', () => {
     console.log('Server reloading...');
-
     try {
       app = require('./server').default;
     } catch (error) {

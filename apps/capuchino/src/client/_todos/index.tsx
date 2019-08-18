@@ -1,6 +1,7 @@
-import React, { FC, useEffect } from 'react';
-import { connect } from 'react-redux';
-import { RootState, Store } from 'typesafe-actions';
+import React, { FC, useEffect, useState } from 'react';
+import { connect, useDispatch, useSelector } from 'react-redux';
+import { RouteComponentProps } from 'react-router-dom';
+import { RootState } from 'typesafe-actions';
 import { Todo } from 'Todo-Types';
 
 import {
@@ -13,12 +14,23 @@ import * as actions from './store/todos/actions';
 
 const TodosPage: FC<Props> = ({
   isLoading,
-  todos,
   addTodo,
   removeTodo,
   loadTodos,
+  todos,
+  match,
 }) => {
-  useEffect(() => {}, []);
+  // const isLoading = useSelector(selectors.getIsLoadingTodos);
+  // const todos = useSelector(selectors.getTodos);
+  // const dispatch = useDispatch();
+  const param: any = match.params;
+  const id = param.id === '0' ? 0 : 1;
+
+  useEffect(() => {
+    console.log('Page', id);
+  }, [match.params]);
+  console.log('todo!!!!!!!!!!!!!!');
+
   if (isLoading) {
     return <p>Loading...</p>;
   }
@@ -38,13 +50,16 @@ const TodosPage: FC<Props> = ({
       <TodoListComponent
         todos={todos}
         render={(todo: Todo) => (
-          <TodoComponent todo={todo} removeTodo={removeTodo} />
+          <TodoComponent
+            todo={todo}
+            removeTodo={removeTodo}
+            isActive={todo.id % 2 === id}
+          />
         )}
       />
     </div>
   );
 };
-
 const mapStateToProps = (state: RootState) => ({
   isLoading: state.todos.isLoadingTodos,
   todos: selectors.getTodos(state.todos),
@@ -55,24 +70,13 @@ const dispatchProps = {
   loadTodos: actions.loadTodosAsync.request,
 };
 
-interface TodosPageProps {}
+interface TodosPageProps extends RouteComponentProps {}
 
 type Props = ReturnType<typeof mapStateToProps> &
   typeof dispatchProps &
   TodosPageProps;
 
-export const loadData = (store: Store) => {
-  return Promise.all([
-    new Promise((resolve, reject) =>
-      store.dispatch(actions.loadTodosAsync.request({ resolve, reject }))
-    ),
-  ]);
-};
-
-export default {
-  component: connect(
-    mapStateToProps,
-    dispatchProps
-  )(TodosPage),
-  loadData,
-};
+export default connect(
+  mapStateToProps,
+  dispatchProps
+)(TodosPage);

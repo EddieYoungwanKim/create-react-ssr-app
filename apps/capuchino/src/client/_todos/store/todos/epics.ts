@@ -1,7 +1,12 @@
 import { Epic } from 'redux-observable';
 import { from, of } from 'rxjs';
 import { filter, switchMap, map, catchError, tap } from 'rxjs/operators';
-import { RootAction, RootState, Services, isActionOf } from 'typesafe-actions';
+import {
+  RootAction,
+  RootState,
+  HttpClientAndAPIs,
+  isActionOf,
+} from 'typesafe-actions';
 
 import { loadTodosAsync } from './actions';
 
@@ -9,15 +14,32 @@ export const loadTodosEpic: Epic<
   RootAction,
   RootAction,
   RootState,
-  Services
-> = (action$, state$, { api }) =>
+  HttpClientAndAPIs
+> = (action$, state$, { api, http }) =>
   action$.pipe(
     filter(isActionOf(loadTodosAsync.request)),
     switchMap(action =>
-      from(api.todos.fetchAll()).pipe(
+      from(api.todos.fetchAll(http)).pipe(
+        map(res => {
+          const items = [
+            ...res.data,
+            ...res.data,
+            ...res.data,
+            ...res.data,
+            ...res.data,
+          ].map((item, index) => {
+            return {
+              id: index,
+              title: item.title,
+            };
+          });
+          return items;
+        }),
         map(loadTodosAsync.success),
-        catchError((message: string) => of(loadTodosAsync.failure(message))),
-        tap(action.payload.resolve)
+        catchError(() => of(loadTodosAsync.failure())),
+        tap(() => {
+          if (action.payload.resolve) action.payload.resolve();
+        })
       )
     )
   );

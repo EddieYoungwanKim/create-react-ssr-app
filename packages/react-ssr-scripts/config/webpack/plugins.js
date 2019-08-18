@@ -18,6 +18,10 @@ const ModuleNotFoundPlugin = require('@coffee/dev-utils/ModuleNotFoundPlugin');
 const ForkTsCheckerWebpackPlugin = require('@coffee/dev-utils/ForkTsCheckerWebpackPlugin');
 const typescriptFormatter = require('@coffee/dev-utils/typescriptFormatter');
 const WatchMissingNodeModulesPlugin = require('@coffee/dev-utils/WatchMissingNodeModulesPlugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin;
+const LoadablePlugin = require('@loadable/webpack-plugin');
+const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 
 const paths = require('../paths');
 const getClientEnvironment = require('../env');
@@ -94,5 +98,15 @@ module.exports = function(webpackEnv, appEnv) {
         // The formatter is invoked directly in WebpackDevServerUtils during development
         formatter: isEnvProduction ? typescriptFormatter : undefined,
       }),
+    isEnvClient &&
+      isEnvProduction &&
+      new BundleAnalyzerPlugin({
+        analyzerMode: 'static',
+        openAnalyzer: false,
+      }),
+    new LoadablePlugin(),
+    new FilterWarningsPlugin({
+      exclude: /Critical dependency: the request of a dependency is an expression/,
+    }),
   ];
 };
