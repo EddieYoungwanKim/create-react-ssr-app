@@ -6,7 +6,6 @@ import { renderRoutes } from 'react-router-config';
 import { loadableReady } from '@loadable/component';
 
 import './index.scss';
-import App from 'App';
 import routeConfig from './routes';
 import configureStore from './store';
 
@@ -15,9 +14,7 @@ const store = configureStore();
 loadableReady(() => {
   ReactDOM.hydrate(
     <ReduxProvider store={store}>
-      <BrowserRouter>
-        <App>{renderRoutes(routeConfig)}</App>
-      </BrowserRouter>
+      <BrowserRouter>{renderRoutes(routeConfig)}</BrowserRouter>
     </ReduxProvider>,
     document.getElementById('root')
   );

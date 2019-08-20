@@ -40,6 +40,20 @@ module.exports = function(webpackEnv) {
     nodeArgs.push(process.env.INSPECT);
   }
 
+  const externals = isEnvDevelopment
+    ? [
+        nodeExternals({
+          whitelist: [
+            isEnvDevelopment && 'webpack/hot/poll?100',
+            /\.(eot|woff|woff2|ttf|otf)$/,
+            /\.(svg|png|jpg|jpeg|gif|ico)$/,
+            /\.(mp4|mp3|ogg|swf|webp)$/,
+            /\.(css|scss|sass|sss|less)$/,
+          ].filter(Boolean),
+        }),
+      ]
+    : [];
+
   return {
     name: 'server',
     target: 'node',
@@ -49,17 +63,7 @@ module.exports = function(webpackEnv) {
       isEnvDevelopment && 'webpack/hot/poll?100',
       paths.appServerIndexJs,
     ].filter(Boolean),
-    externals: [
-      nodeExternals({
-        whitelist: [
-          isEnvDevelopment && 'webpack/hot/poll?100',
-          /\.(eot|woff|woff2|ttf|otf)$/,
-          /\.(svg|png|jpg|jpeg|gif|ico)$/,
-          /\.(mp4|mp3|ogg|swf|webp)$/,
-          /\.(css|scss|sass|sss|less)$/,
-        ].filter(Boolean),
-      }),
-    ],
+    externals,
     output: {
       path: isEnvDevelopment ? paths.appDist : paths.appBuild,
       publicPath: publicPath,

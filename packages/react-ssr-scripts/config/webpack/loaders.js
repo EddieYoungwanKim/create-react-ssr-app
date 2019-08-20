@@ -56,7 +56,7 @@ const baseLoaders = (webpackEnv, appEnv) => {
             'babel-plugin-named-asset-import',
             'babel-preset-react-app',
             '@coffee/dev-utils',
-            'react-ssr-scripts',
+            '@coffee/scripts',
           ]
         ),
         // @remove-on-eject-end

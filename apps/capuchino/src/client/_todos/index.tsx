@@ -18,43 +18,30 @@ const TodosPage: FC<Props> = ({
   removeTodo,
   loadTodos,
   todos,
-  match,
 }) => {
   // const isLoading = useSelector(selectors.getIsLoadingTodos);
   // const todos = useSelector(selectors.getTodos);
   // const dispatch = useDispatch();
-  const param: any = match.params;
-  const id = param.id === '0' ? 0 : 1;
-
-  useEffect(() => {
-    console.log('Page', id);
-  }, [match.params]);
-  console.log('todo!!!!!!!!!!!!!!');
-
   if (isLoading) {
     return <p>Loading...</p>;
   }
   return (
     <div>
-      Todos Page
+      Todos Page!
       <div>
         <button
           onClick={() => {
             loadTodos({});
           }}
         >
-          Load Todos
+          Load Todos!
         </button>
       </div>
       <TodoFormComponent addTodo={addTodo} />
       <TodoListComponent
         todos={todos}
         render={(todo: Todo) => (
-          <TodoComponent
-            todo={todo}
-            removeTodo={removeTodo}
-            isActive={todo.id % 2 === id}
-          />
+          <TodoComponent todo={todo} removeTodo={removeTodo} />
         )}
       />
     </div>

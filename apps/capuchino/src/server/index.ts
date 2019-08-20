@@ -1,3 +1,4 @@
+import newrelic from 'newrelic';
 import path from 'path';
 import express from 'express';
 import proxy from 'express-http-proxy';

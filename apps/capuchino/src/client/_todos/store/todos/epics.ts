@@ -20,21 +20,7 @@ export const loadTodosEpic: Epic<
     filter(isActionOf(loadTodosAsync.request)),
     switchMap(action =>
       from(api.todos.fetchAll(http)).pipe(
-        map(res => {
-          const items = [
-            ...res.data,
-            ...res.data,
-            ...res.data,
-            ...res.data,
-            ...res.data,
-          ].map((item, index) => {
-            return {
-              id: index,
-              title: item.title,
-            };
-          });
-          return items;
-        }),
+        map(res => res.data),
         map(loadTodosAsync.success),
         catchError(() => of(loadTodosAsync.failure())),
         tap(() => {
