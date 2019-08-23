@@ -39,6 +39,7 @@ const storeMiddleware = () => (
 ) => {
   const store = configureStore(req);
   req.store = store;
+  next();
   // const promises = matchRoutes(routeConfig, req.path).map(({ route }) => {
   //   return route.serverActionDispatch
   //     ? route.serverActionDispatch({ store, req, res })

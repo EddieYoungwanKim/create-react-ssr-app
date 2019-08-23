@@ -1,19 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
 import { Provider as ReduxProvider } from 'react-redux';
-import { renderRoutes } from 'react-router-config';
+import { createBrowserHistory } from 'history';
 import { loadableReady } from '@loadable/component';
 
-import routeConfig from 'core/routes';
+import Router from 'core/routes/router';
+import routes from 'core/routes';
 import configureStore from './helper/store';
 
 const store = configureStore();
 
+const history = createBrowserHistory();
 loadableReady(() => {
   ReactDOM.hydrate(
     <ReduxProvider store={store}>
-      <BrowserRouter>{renderRoutes(routeConfig)}</BrowserRouter>
+      <Router history={history} routes={routes} />
     </ReduxProvider>,
     document.getElementById('root')
   );

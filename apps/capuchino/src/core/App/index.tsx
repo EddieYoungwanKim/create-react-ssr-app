@@ -1,14 +1,11 @@
 import React, { FC } from 'react';
-import { renderRoutes, RouteConfig } from 'react-router-config';
 
 import './App.scss';
 
-interface Props {
-  route: { routes: Array<RouteConfig> };
-}
+interface Props {}
 
-const App: FC<Props> = ({ route }) => {
-  return <div className="App">{renderRoutes(route.routes)}</div>;
+const App: FC<Props> = ({ children }) => {
+  return <div className="App">{children}</div>;
 };
 
 export default App;

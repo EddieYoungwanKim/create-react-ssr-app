@@ -245,7 +245,7 @@ module.exports = function(webpackEnv) {
         Object.assign(
           {},
           {
-            inject: false,
+            inject: true,
             filename: 'app.html',
             template: paths.appHtml,
           },
