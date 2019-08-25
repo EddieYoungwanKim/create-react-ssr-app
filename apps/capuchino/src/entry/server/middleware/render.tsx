@@ -6,35 +6,29 @@ import ReactDOMServer from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import { Provider as ReduxProvider } from 'react-redux';
 import serialize from 'serialize-javascript';
-import { createMemoryHistory } from 'history';
 import { ChunkExtractor } from '@loadable/server';
+import universalRouter from 'core/universalRouter';
 
-import routes from 'core/routes';
-import Router from 'core/routes/router';
-
-const renderMiddleware = () => (req: Request, res: Response) => {
+const renderMiddleware = () => async (req: Request, res: Response) => {
   let html = req.html || '';
   const store = req.store;
   const sheet = new ServerStyleSheet();
   const statsFile = path.resolve(__dirname, 'public/loadable-stats.json');
   const extractor = new ChunkExtractor({ statsFile });
-  const history = createMemoryHistory({ initialEntries: [req.path] });
 
-  console.log('SSR history', history);
+  const router = universalRouter({ store, req, res });
+  const content = await router.resolve(req.path);
 
   const htmlContent = ReactDOMServer.renderToString(
     <ReduxProvider store={store}>
-      {extractor.collectChunks(
-        sheet.collectStyles(<Router history={history} routes={routes} />)
-      )}
+      {extractor.collectChunks(sheet.collectStyles(<>{content}</>))}
     </ReduxProvider>
   );
-
   const htmlReplacements: StringMap = {
     HTML_CONTENT: htmlContent,
     STYLE_TAGS: sheet.getStyleTags(),
-    // JS_CHUNKS: extractor.getScriptTags(),
-    // CSS_CHUNKS: extractor.getStyleTags(),
+    CSS_CHUNKS: extractor.getStyleTags(),
+    JS_CHUNKS: extractor.getScriptTags(),
     PRELOADED_STATE: serialize(store.getState(), { isJSON: true }),
   };
 

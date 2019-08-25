@@ -1,28 +1,28 @@
 import { createStore, applyMiddleware } from 'redux';
 import { Request, Response, NextFunction } from 'express';
-import { matchRoutes } from 'react-router-config';
 import axios from 'axios';
 import { createEpicMiddleware } from 'redux-observable';
-import { RootAction, RootState, HttpClientAndAPIs } from 'typesafe-actions';
+import { RootAction, RootState, EpicDependencies } from 'typesafe-actions';
+import { createMemoryHistory } from 'history';
 
 import rootReducer from 'stateManager/root-reducer';
 import rootEpic from 'stateManager/root-epic';
 import api from 'stateManager/root-api';
-import routeConfig from 'core/routes';
 
 const configureStore = (req: Request) => {
   const http = axios.create({
     baseURL: 'https://jsonplaceholder.typicode.com',
     // headers: { Authorization: req.get('cookie') || '' },
   });
+  const history = createMemoryHistory({ initialEntries: [req.path] });
 
   const epicMiddleware = createEpicMiddleware<
     RootAction,
     RootAction,
     RootState,
-    HttpClientAndAPIs
+    EpicDependencies
   >({
-    dependencies: { api, http },
+    dependencies: { api, http, history },
   });
 
   // configure middlewares
@@ -40,15 +40,6 @@ const storeMiddleware = () => (
   const store = configureStore(req);
   req.store = store;
   next();
-  // const promises = matchRoutes(routeConfig, req.path).map(({ route }) => {
-  //   return route.serverActionDispatch
-  //     ? route.serverActionDispatch({ store, req, res })
-  //     : null;
-  // });
-
-  // Promise.all(promises).then(data => {
-  //   next();
-  // });
 };
 
 export default storeMiddleware;

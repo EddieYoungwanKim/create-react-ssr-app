@@ -1,9 +1,9 @@
-import React, { FC, useEffect, useState } from 'react';
-import { connect, useDispatch, useSelector } from 'react-redux';
+import React, { FC } from 'react';
+import { connect } from 'react-redux';
+import styled from 'styled-components';
 import { RootState } from 'typesafe-actions';
 import { Todo } from 'Todo-Types';
-import Button from 'antd/es/button';
-
+import { Button } from 'semantic-ui-react';
 import {
   TodoFormComponent,
   TodoListComponent,
@@ -12,25 +12,25 @@ import {
 import * as selectors from 'stateManager/todos/selectors';
 import * as actions from 'stateManager/todos/actions';
 
+const Title = styled.h1`
+  font-size: 1.5em;
+`;
+
 const TodosPage: FC<Props> = ({
-  isLoading,
+  isFetching,
   addTodo,
   removeTodo,
   loadTodos,
   todos,
 }) => {
-  // const isLoading = useSelector(selectors.getIsLoadingTodos);
-  // const todos = useSelector(selectors.getTodos);
-  // const dispatch = useDispatch();
-  if (isLoading) {
+  if (isFetching) {
     return <p>Loading...</p>;
   }
   return (
     <div>
-      Todos Page!
+      <Title>Todos Page</Title>
       <div>
         <Button
-          type="primary"
           onClick={() => {
             loadTodos({});
           }}
@@ -49,7 +49,7 @@ const TodosPage: FC<Props> = ({
   );
 };
 const mapStateToProps = (state: RootState) => ({
-  isLoading: state.todos.isLoadingTodos,
+  isFetching: state.todos.isFetching,
   todos: selectors.getTodos(state.todos),
 });
 const dispatchProps = {

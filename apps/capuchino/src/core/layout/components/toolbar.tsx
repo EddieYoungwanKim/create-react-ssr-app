@@ -1,21 +1,13 @@
-import React, { FC, ReactNode, Fragment } from 'react';
-import { Layout, Menu } from 'antd';
+import React, { FC } from 'react';
+import { Container, Menu } from 'semantic-ui-react';
 
 interface Props {}
 
 const Toolbar: FC<Props> = ({ children }) => {
   return (
-    <Layout.Header>
-      <div className="logo" />
-      <Menu
-        theme="dark"
-        mode="horizontal"
-        defaultSelectedKeys={['1']}
-        style={{ lineHeight: '64px' }}
-      >
-        {children}
-      </Menu>
-    </Layout.Header>
+    <Menu fixed="top" inverted>
+      <Container>{children}</Container>
+    </Menu>
   );
 };
 

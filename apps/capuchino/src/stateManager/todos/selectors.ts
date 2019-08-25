@@ -2,5 +2,5 @@
 
 import { TodosState } from './reducer';
 
-export const getTodos = (state: TodosState) => state.todos;
-export const getIsLoadingTodos = (state: TodosState) => state.isLoadingTodos;
+export const getTodos = (state: TodosState) => state.items;
+export const getIsFetching = (state: TodosState) => state.isFetching;

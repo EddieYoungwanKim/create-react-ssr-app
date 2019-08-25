@@ -1,5 +1,5 @@
 import React, { FC, useState, ReactEventHandler } from 'react';
-
+import { Form } from 'semantic-ui-react';
 interface TodoFormProps {
   addTodo: (title: string) => void;
 }
@@ -16,22 +16,18 @@ export const TodoFormComponent: FC<Props> = ({ addTodo }) => {
     setTitle('');
   };
   return (
-    <form
-      onSubmit={ev => {
-        ev.preventDefault();
-      }}
-    >
-      <input
-        style={{ width: 450 }}
-        type="text"
-        placeholder="Enter new item"
-        value={title}
-        onChange={onInputChange}
-      />
-      &nbsp;
-      <button type="submit" onClick={onSubmit} disabled={!title}>
-        Add
-      </button>
-    </form>
+    <Form>
+      <Form.Group widths="equal">
+        <Form.Input
+          fluid
+          value={title}
+          placeholder="Enter new item"
+          onChange={onInputChange}
+        />
+        <Form.Button type="submit" onClick={onSubmit} disabled={!title}>
+          Add
+        </Form.Button>
+      </Form.Group>
+    </Form>
   );
 };

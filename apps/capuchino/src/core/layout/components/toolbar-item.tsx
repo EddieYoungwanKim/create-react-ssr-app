@@ -1,15 +1,14 @@
 import React, { FC } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu } from 'antd';
+import { Menu } from 'semantic-ui-react';
+import { Link } from 'core/universalRouter/Link';
 
 interface Props {
-  key: string;
   to: string;
 }
 
-const Toolbar: FC<Props> = ({ key, to, children }) => {
+const Toolbar: FC<Props> = ({ to, children }) => {
   return (
-    <Menu.Item key={key}>
+    <Menu.Item>
       <Link to={to}>{children}</Link>
     </Menu.Item>
   );
